@@ -17,7 +17,6 @@ class AdminSeeder extends Seeder
     {
         $admins = [
             [
-                'admin_id' => 7,
                 'username' => 'nanad',
                 'email' => 'nanad@adminboboin.aja',
                 'password' => Hash::make('admin7nanad'),
@@ -26,7 +25,6 @@ class AdminSeeder extends Seeder
                 'updated_at' => '2025-03-30 14:13:29'
             ],
             [
-                'admin_id' => 8,
                 'username' => 'ara',
                 'email' => 'ara@adminboboin.aja',
                 'password' => Hash::make('admin8ara'),
@@ -35,7 +33,6 @@ class AdminSeeder extends Seeder
                 'updated_at' => '2025-03-30 14:13:45'
             ],
             [
-                'admin_id' => 9,
                 'username' => 'pinkan',
                 'email' => 'pinkan@adminboboin.aja',
                 'password' => Hash::make('admin9pinkan'),
@@ -44,7 +41,6 @@ class AdminSeeder extends Seeder
                 'updated_at' => '2025-03-30 14:14:03'
             ],
             [
-                'admin_id' => 10,
                 'username' => 'alja',
                 'email' => 'alja@adminboboin.aja',
                 'password' => Hash::make('admin10alja'),
@@ -55,7 +51,7 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($admins as $admin) {
-            DB::table('admins')->insert($admin);
+            DB::table('users')->insert($admin); // Memasukkan data admin ke tabel users
         }
     }
 }

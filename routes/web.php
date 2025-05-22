@@ -30,8 +30,6 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AdminMiddleware::class)-
     Route::delete('/reservation/{id}/cancel', [ReservationController::class, 'cancel'])->name('reservation.cancel');
 });
 
-Route::redirect('/dashboard', '/admin/dashboard');
-
 // Auth Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
@@ -40,20 +38,6 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Auth::routes();
-
-// Redirect /dashboard ke /admin/dashboard
-Route::redirect('/dashboard', '/admin/dashboard');
-
-
-
-// Optional: Route admin management jika punya fitur superadmin
-Route::prefix('admins')->group(function () {
-    Route::get('/', [AdminController::class, 'index']);
-    Route::post('/', [AdminController::class, 'store']);
-    Route::get('/{id}', [AdminController::class, 'show']);
-    Route::put('/{id}', [AdminController::class, 'update']);
-    Route::delete('/{id}', [AdminController::class, 'destroy']);
-});
 
 // Laravel's default home route
 Route::get('/home', [HomeController::class, 'index'])->name('home');

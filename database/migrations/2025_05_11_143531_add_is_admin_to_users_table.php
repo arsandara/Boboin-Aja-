@@ -6,22 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_admin')->default(false); // Kolom ini menentukan apakah user adalah admin
+            $table->boolean('is_admin')->default(false);  // Menambahkan kolom is_admin di tabel users
         });
     }
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_admin');  // Menghapus kolom is_admin jika rollback
         });
     }
 };
