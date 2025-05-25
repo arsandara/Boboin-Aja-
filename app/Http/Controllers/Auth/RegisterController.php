@@ -7,19 +7,26 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
+
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
+    public function showRegistrationForm()
+    {
+        return view('auth.register'); // pastikan ada view ini
+    }
+
+    public function register(Request $request)
+{
+    $this->validator($request->all())->validate();
+
+    $user = $this->create($request->all());
+
+    auth()->login($user);
+
+    return redirect($this->redirectTo())->with('success', 'Registrasi berhasil! Selamat datang, ' . $user->name);
+}
 
     use RegistersUsers;
 
@@ -28,7 +35,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -67,6 +74,12 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'is_admin' => false,
         ]);
+    }
+
+        protected function redirectTo()
+    {
+        return auth()->user()->is_admin ? '/admin' : '/user';
     }
 }

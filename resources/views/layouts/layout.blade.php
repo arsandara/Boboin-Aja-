@@ -17,7 +17,7 @@
             <div class="flex items-center">
                 <img src="{{ asset('images/LOGO.png') }}" alt="Boboin.Aja logo" class="h-10 mr-3">
             </div>
-            <nav class="space-x-6">
+            <nav class="items-center">
                 <a class="hover:text-gray-300" href="{{ url('/') }}">Home</a>
                 <a class="hover:text-gray-300" href="{{ url('/rooms') }}">Rooms</a>
                 <a class="hover:text-gray-300" href="{{ url('/facilities') }}">Facilities</a>
@@ -29,7 +29,7 @@
                     <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
                         <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('storage/default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
                     </button>
-                    <div id="profileMenu" class="hidden absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                    <div id="profileMenu" class="hidden fixed right-2 mt-2 w-40 bg-white border rounded shadow-lg z-50">
                         <ul class="py-2 text-sm text-gray-800">
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
@@ -64,8 +64,8 @@
                 <button class="tab-button active px-4 py-2 border-b-2 border-teal-900 text-teal-900" onclick="showTab('signin')">Log In</button>
                 <button class="tab-button px-4 py-2" onclick="showTab('signup')">Sign Up</button>
             </div>
-            @include('auth.login-popup')
-            @include('auth.register-popup')
+            @include('auth.login')
+            @include('auth.register')
         </div>
     </div>
 

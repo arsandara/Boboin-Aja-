@@ -34,6 +34,32 @@
           <h1 class="text-2xl font-semibold">@yield('title')</h1>
           <div>Today: {{ now()->format('d F Y') }}</div>
         </div>
+        <div class="flex items-center">
+                @auth
+                <div class="relative">
+                    <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
+                        <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('storage/default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
+                    </button>
+                    <div id="profileMenu" class="hidden fixed right-2 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                        <ul class="py-2 text-sm text-gray-800">
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100">
+                                        Logout
+                                        <i class="fas fa-sign-out-alt text-red-500 ml-2"></i>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                @else
+                <button id="openPopup" class="bg-white text-teal-900 px-4 py-2 rounded hover:bg-gray-200">
+                    Login / Sign Up
+                </button>
+                @endauth
+            </div>
       </div>
 
       <div class="p-6">

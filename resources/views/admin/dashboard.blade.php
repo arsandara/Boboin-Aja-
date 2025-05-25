@@ -190,7 +190,7 @@ $availabilityPercentage = $totalRooms > 0 ? round(($totalRooms - $totalOccupied)
   </div>
 
   <!-- Modal -->
-  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
     <div class="bg-white p-6 rounded w-[400px] space-y-4">
       <h2 class="text-xl font-bold">Edit Reservation</h2>
       <p><strong>Previous Check-In:</strong> <span id="prevCheckIn"></span></p>
