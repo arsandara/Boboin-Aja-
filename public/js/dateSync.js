@@ -4,15 +4,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkoutInput = document.getElementById('checkout');
     const personSelect = document.getElementById('person');
 
+    // Fungsi untuk format tanggal ke YYYY-MM-DD
+    const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
+    };
+
     // Fungsi untuk menyimpan data ke localStorage
     function saveBookingData() {
-        localStorage.setItem('checkinDate', checkinInput.value);
-        localStorage.setItem('checkoutDate', checkoutInput.value);
-        localStorage.setItem('personCount', personSelect.value);
+        if (checkinInput && checkinInput.value) {
+            localStorage.setItem('checkinDate', checkinInput.value);
+        }
+        if (checkoutInput && checkoutInput.value) {
+            localStorage.setItem('checkoutDate', checkoutInput.value);
+        }
+        if (personSelect && personSelect.value) {
+            localStorage.setItem('personCount', personSelect.value);
+        }
         console.log("Saved booking data:", {
-            checkinDate: checkinInput.value,
-            checkoutDate: checkoutInput.value,
-            personCount: personSelect.value
+            checkinDate: checkinInput?.value,
+            checkoutDate: checkoutInput?.value,
+            personCount: personSelect?.value
         });
     }
 
@@ -28,53 +39,91 @@ document.addEventListener('DOMContentLoaded', function() {
             savedPerson
         });
 
-        // Jika data ada di localStorage, set nilai pada input
-        if (savedCheckin && checkinInput) {
-            checkinInput.value = savedCheckin;
+        // Set default dates jika belum ada data tersimpan
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        // Load atau set default untuk check-in
+        if (checkinInput) {
+            if (savedCheckin) {
+                checkinInput.value = savedCheckin;
+            } else {
+                checkinInput.value = formatDate(today);
+            }
+            checkinInput.min = formatDate(today);
         }
-        if (savedCheckout && checkoutInput) {
-            checkoutInput.value = savedCheckout;
+
+        // Load atau set default untuk check-out
+        if (checkoutInput) {
+            if (savedCheckout) {
+                checkoutInput.value = savedCheckout;
+            } else {
+                checkoutInput.value = formatDate(tomorrow);
+            }
+            
+            // Set minimum checkout berdasarkan checkin yang ada
+            if (checkinInput && checkinInput.value) {
+                const checkinDate = new Date(checkinInput.value);
+                const minCheckout = new Date(checkinDate);
+                minCheckout.setDate(checkinDate.getDate() + 1);
+                checkoutInput.min = formatDate(minCheckout);
+            } else {
+                checkoutInput.min = formatDate(tomorrow);
+            }
         }
-        if (savedPerson && personSelect) {
+
+        // Load person count
+        if (personSelect && savedPerson) {
             personSelect.value = savedPerson;
         }
     }
 
-    // Cek apakah elemen input ada di halaman ini
-    if (checkinInput && checkoutInput && personSelect) {
-        loadBookingData();  // Memuat data saat halaman dimuat
+    // Setup event listeners untuk save data ketika input berubah
+    function setupEventListeners() {
+        if (checkinInput) {
+            checkinInput.addEventListener('change', function() {
+                // Update minimum checkout date
+                const selectedCheckin = new Date(this.value);
+                const newMinCheckout = new Date(selectedCheckin);
+                newMinCheckout.setDate(selectedCheckin.getDate() + 1);
+                
+                if (checkoutInput) {
+                    checkoutInput.min = formatDate(newMinCheckout);
+                    
+                    // Jika checkout date kurang dari minimum, update checkout
+                    if (new Date(checkoutInput.value) <= selectedCheckin) {
+                        checkoutInput.value = formatDate(newMinCheckout);
+                    }
+                }
+                
+                saveBookingData();
+            });
+        }
 
-        checkinInput.addEventListener('change', saveBookingData);
-        checkoutInput.addEventListener('change', saveBookingData);
-        personSelect.addEventListener('change', saveBookingData);
-    } else {
-        loadBookingData();  // Memuat data jika elemen tidak ada di halaman ini
+        if (checkoutInput) {
+            checkoutInput.addEventListener('change', saveBookingData);
+        }
+
+        if (personSelect) {
+            personSelect.addEventListener('change', saveBookingData);
+        }
     }
 
-    // Set nilai dan batas minimum untuk tanggal check-in dan check-out
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    // Inisialisasi
+    loadBookingData();
+    setupEventListeners();
 
-    const formatDate = (date) => {
-        return date.toISOString().split('T')[0];
+    // Function untuk clear booking data (jika diperlukan)
+    window.clearBookingData = function() {
+        localStorage.removeItem('checkinDate');
+        localStorage.removeItem('checkoutDate');
+        localStorage.removeItem('personCount');
+        console.log("Booking data cleared");
     };
 
-    checkinInput.value = formatDate(today);
-    checkinInput.min = formatDate(today);  // Set batas minimum ke hari ini (tidak bisa memilih kemarin)
-
-    checkoutInput.value = formatDate(tomorrow);
-    checkoutInput.min = formatDate(tomorrow);  // Set batas minimum untuk checkout ke besok
-
-    // Update checkout minimum saat checkin diubah
-    checkinInput.addEventListener('change', function () {
-        const selectedCheckin = new Date(this.value);
-        const newMinCheckout = new Date(selectedCheckin);
-        newMinCheckout.setDate(selectedCheckin.getDate() + 1);
-
-        checkoutInput.min = formatDate(newMinCheckout);
-        if (new Date(checkoutInput.value) <= selectedCheckin) {
-            checkoutInput.value = formatDate(newMinCheckout);
-        }
-    });
+    // Function untuk sync data ke form lain (jika diperlukan)
+    window.syncBookingData = function() {
+        loadBookingData();
+    };
 });

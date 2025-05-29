@@ -67,7 +67,7 @@
       <div class="bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0 inline-block">
         <a href="{{ url('rooms/' . $room->id) }}">
           <img alt="{{ $room->room_name }}" class="w-full h-48 object-cover"
-               src="{{ asset('storage/' . $room->image_booking) }}">
+               src="{{ asset('images/' . $room->image_booking) }}">
         </a>
         <div class="p-4">
           <h3 class="text-lg font-semibold">{{ $room->room_name }}</h3>
@@ -91,23 +91,23 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="relative-container row-span-2">
-        <img alt="Cozy Rooms" class="w-full h-full object-cover" src="{{ asset('storage/facilities/Cozy Rooms.png') }}">
+        <img alt="Cozy Rooms" class="w-full h-full object-cover" src="{{ asset('images/Cozy Rooms.png') }}">
         <div class="overlay">Cozy Rooms</div>
         </div>
         <div class="relative-container">
-        <img alt="Private Jacuzzi" class="w-full h-full object-cover" src="{{ asset('storage/facilities/Private Jacuzzi.png') }}">
+        <img alt="Private Jacuzzi" class="w-full h-full object-cover" src="{{ asset('images/Private Jacuzzi.png') }}">
         <div class="overlay">Private Jacuzzi</div>
         </div>
         <div class="relative-container">
-        <img alt="Dog Park" class="w-full h-full object-cover" src="{{ asset('storage/facilities/Dog Park.png') }}">
+        <img alt="Dog Park" class="w-full h-full object-cover" src="{{ asset('images/Dog Park.png') }}">
         <div class="overlay">Dog Park</div>
         </div>
         <div class="relative-container">
-        <img alt="Outdoor Lounge" class="w-full h-full object-cover" src="{{ asset('storage/facilities/Outdoor Lounge.png') }}">
+        <img alt="Outdoor Lounge" class="w-full h-full object-cover" src="{{ asset('images/Outdoor Lounge.png') }}">
         <div class="overlay">Outdoor Lounge</div>
         </div>
         <div class="relative-container">
-        <img alt="Dining & Bar" class="w-full h-full object-cover" src="{{ asset('storage/facilities/Dining and Bar.png') }}">
+        <img alt="Dining & Bar" class="w-full h-full object-cover" src="{{ asset('images/Dining and Bar.png') }}">
         <div class="overlay">Dining & Bar</div>
         </div>
     </div>

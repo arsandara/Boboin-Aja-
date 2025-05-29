@@ -6,11 +6,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Permission\Traits\HasRoles;
 // use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     // use HasApiTokens, HasFactory, Notifiable;
+
+    use HasFactory, Notifiable, HasRoles;
 
     protected $primaryKey = 'id';
     public $incrementing = true;
@@ -20,7 +23,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'is_admin',
     ];
 

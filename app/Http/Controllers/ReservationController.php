@@ -6,15 +6,10 @@ use App\Models\Room;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
-    /**
-     * Display the reservation form for the specified room.
-     *
-     * @param  int  $roomId
-     * @return \Illuminate\View\View
-     */
     public function create($roomId)
     {
         $room = Room::findOrFail($roomId);
@@ -26,22 +21,22 @@ class ReservationController extends Controller
         $reservation = Reservation::findOrFail($id);
         return response()->json($reservation);
     }
-    /**
-     * Store a new reservation in the database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+
     public function store(Request $request)
     {
-        // Validate the request
+        $request->merge([
+            'early_checkin' => $request->has('early_checkin'),
+            'late_checkout' => $request->has('late_checkout'),
+            'extra_bed' => $request->has('extra_bed'),
+        ]);
+
         $validator = Validator::make($request->all(), [
             'room_id' => 'required|exists:rooms,room_id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'nullable|string|max:255',
-            'day' => 'required|numeric|between:01,31',
-            'month' => 'required|numeric|between:01,12',
-            'year' => 'required|numeric|between:1900,2023',
+            'day' => 'required|numeric|between:1,31',
+            'month' => 'required|numeric|between:1,12',
+            'year' => 'required|numeric|between:1900,' . now()->year,
             'email' => 'required|email|max:255',
             'phone' => 'required|string|min:8|max:15',
             'checkin' => 'required|date',
@@ -53,37 +48,39 @@ class ReservationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Get the room details
+        // Validasi tanggal lahir
+        if (!checkdate($request->month, $request->day, $request->year)) {
+            return redirect()->back()->withErrors(['dob' => 'Tanggal lahir tidak valid'])->withInput();
+        }
+
         $room = Room::findOrFail($request->room_id);
-        
-        // Calculate the duration and prices
+        $roomNumber = $this->generateRoomNumber($room->room_name);
+
         $checkIn = $request->checkin;
         $checkOut = $request->checkout;
         $duration = (strtotime($checkOut) - strtotime($checkIn)) / (60 * 60 * 24);
-        
+
+        if ($duration < 1) {
+            return redirect()->back()->withErrors(['checkin' => 'Durasi menginap minimal 1 malam'])->withInput();
+        }
+
         $basePrice = $room->price * $duration;
-        
+
         $addonPrice = 0;
         if ($request->early_checkin) $addonPrice += 350000;
         if ($request->late_checkout) $addonPrice += 350000;
         if ($request->extra_bed) $addonPrice += 150000;
-        
+
         $subtotal = $basePrice + $addonPrice;
         $tax = $subtotal * 0.1;
         $total = $subtotal + $tax;
-        
-        // Format DOB
-        $dob = $request->year . '-' . $request->month . '-' . $request->day;
-        
-        // Extract the person count as numeric
+
+        $dob = $request->year . '-' . str_pad($request->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($request->day, 2, '0', STR_PAD_LEFT);
         $personCount = intval(preg_replace('/[^0-9]/', '', $request->person));
-        
-        // Create the reservation
+
         $reservation = new Reservation();
         $reservation->guest_name = $request->first_name . ' ' . $request->last_name;
         $reservation->guest_email = $request->email;
@@ -91,30 +88,87 @@ class ReservationController extends Controller
         $reservation->guest_dob = $dob;
         $reservation->room_id = $room->room_id;
         $reservation->room_name = $room->room_name;
-        $reservation->room_number = $room->room_number;
+        $reservation->room_number = $roomNumber;
         $reservation->person = $personCount;
         $reservation->check_in = $checkIn;
         $reservation->check_out = $checkOut;
         $reservation->duration = $duration;
-        $reservation->early_checkin = $request->early_checkin ? 1 : 0;
-        $reservation->late_checkout = $request->late_checkout ? 1 : 0;
-        $reservation->extra_bed = $request->extra_bed ? 1 : 0;
+        $reservation->early_checkin = $request->early_checkin;
+        $reservation->late_checkout = $request->late_checkout;
+        $reservation->extra_bed = $request->extra_bed;
         $reservation->base_price = $basePrice;
         $reservation->request_price = $addonPrice;
         $reservation->subtotal = $subtotal;
         $reservation->tax = $tax;
         $reservation->total_price = $total;
-        $reservation->status = 'Confirmed';
+        $reservation->status = 'Pending';
+        $reservation->is_paid = false; // Tambahkan kolom ini di database (boolean)
         $reservation->save();
-        
-        // Redirect with success message
-        return redirect()->route('home')
-            ->with('success', 'Booking room was successful. Thank you for booking at Boboin.Aja!');
+
+        return view('booking.success', [
+            'reservation' => $reservation,
+            'bank_name' => 'Mandiri Virtual Account',
+            'virtual_account' => '886088' . now()->format('His') . rand(100, 999),
+            'account_holder' => 'PT Boboin Global Staycation',
+            'total_price' => $total,
+            'whatsapp' => '+6285175389380',
+            'is_paid' => false,
+            'check_in' => $checkIn,
+        ]);
     }
+
+    private function generateRoomNumber($roomName)
+    {
+        $ranges = [
+            'Deluxe Cabin' => [200, 220],
+            'Executive Cabin' => [221, 240],
+            'Family Cabin' => [241, 255],
+            '2 Paws Cabin' => [251, 262],
+            'Executive Cabin with Jacuzzi' => [100, 108],
+            'Family Cabin with Jacuzzi' => [109, 115],
+            '4 Paws Cabin' => [116, 122],
+            'Romantic Cabin' => [130, 138],
+            'Romantic Cabin with Jacuzzi' => [123, 129],
+        ];
+
+        if (!isset($ranges[$roomName])) {
+            throw new \Exception("Unknown room name: $roomName");
+        }
+
+        [$start, $end] = $ranges[$roomName];
+
+        $usedNumbers = Reservation::where('room_name', $roomName)
+            ->pluck('room_number')
+            ->filter(fn($num) => is_numeric($num))
+            ->map(fn($num) => intval($num))
+            ->toArray();
+
+        for ($i = $start; $i <= $end; $i++) {
+            if (!in_array($i, $usedNumbers)) {
+                return strval($i);
+            }
+        }
+
+        throw new \Exception("No available room number for $roomName");
+    }
+
+    public function success($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        return view('booking.successfully', [
+            'total_price' => $reservation->total_price,
+            'whatsapp' => '+6285175389380',
+            'reservation' => $reservation,
+            'is_paid' => $reservation->is_paid,
+            'check_in' => $reservation->check_in,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $query = Reservation::query()
-            ->whereIn('status', ['Confirmed', 'Checked In'])
+            ->whereIn('status', ['Pending', 'Confirmed', 'Checked In'])
             ->orderBy('check_in', 'asc');
 
         if ($request->has('search')) {
@@ -129,16 +183,7 @@ class ReservationController extends Controller
     public function checkin($id)
     {
         $reservation = Reservation::findOrFail($id);
-        
-        // Update status to Checked In
-        $reservation->update([
-            'status' => 'Checked In'
-        ]);
-
-        // Bisa tambahkan logic lain seperti:
-        // - Update room status
-        // - Create check-in record
-        // - dll
+        $reservation->update(['status' => 'Checked In']);
 
         return redirect()->route('admin.reservation.index')
             ->with('success', 'Guest has been checked in successfully');
@@ -147,13 +192,12 @@ class ReservationController extends Controller
     public function cancel($id)
     {
         $reservation = Reservation::findOrFail($id);
-        
-        // Soft delete atau hard delete
         $reservation->delete();
 
         return redirect()->route('admin.reservation.index')
             ->with('success', 'Reservation has been cancelled');
     }
+
     public function edit($id)
     {
         $reservation = Reservation::findOrFail($id);
@@ -168,26 +212,20 @@ class ReservationController extends Controller
         ]);
 
         $reservation = Reservation::findOrFail($id);
-        $oldTotal = $reservation->total_price;
-        
-        // Hitung jumlah hari
+
         $checkIn = Carbon::parse($request->check_in);
         $checkOut = Carbon::parse($request->check_out);
         $numberOfDays = $checkOut->diffInDays($checkIn);
 
-        // Ambil harga kamar
         $room = Room::where('room_name', $reservation->room_name)->first();
         $roomPrice = $room->price;
 
-        // Hitung total harga baru
         $total = $roomPrice * $numberOfDays;
-        
-        // Tambah biaya tambahan
+
         if ($request->has('early_checkin')) $total += 50000;
         if ($request->has('late_checkout')) $total += 50000;
         if ($request->has('extra_bed')) $total += 150000;
 
-        // Update reservation
         $reservation->update([
             'check_in' => $request->check_in,
             'check_out' => $request->check_out,
@@ -197,38 +235,19 @@ class ReservationController extends Controller
             'total_price' => $total
         ]);
 
-        // Update revenue
-        $revenue = Revenue::where('date', Carbon::today()->format('Y-m-d'))->first();
-        if ($revenue) {
-            $revenue->total_amount = $revenue->total_amount - $oldTotal + $total;
-            $revenue->save();
-        } else {
-            Revenue::create([
-                'date' => Carbon::today()->format('Y-m-d'),
-                'total_amount' => $total
-            ]);
-        }
-
-        return redirect()->route('dashboard')
-                        ->with('success', 'Reservation updated successfully');
+        return redirect()->route('admin.dashboard')->with('success', 'Reservation updated successfully');
     }
+
     public function destroy($id)
     {
         try {
             $reservation = Reservation::findOrFail($id);
-            
-            // Jika perlu update revenue, lakukan di sini
-            $revenue = Revenue::where('date', Carbon::today()->format('Y-m-d'))->first();
-            if ($revenue) {
-                $revenue->total_amount -= $reservation->total_price;
-                $revenue->save();
-            }
-            
             $reservation->delete();
-            
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+    
 }

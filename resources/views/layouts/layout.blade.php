@@ -1,3 +1,5 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +29,7 @@
                 @auth
                 <div class="relative">
                     <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
-                        <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('storage/default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
+                        <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
                     </button>
                     <div id="profileMenu" class="hidden fixed right-2 mt-2 w-40 bg-white border rounded shadow-lg z-50">
                         <ul class="py-2 text-sm text-gray-800">

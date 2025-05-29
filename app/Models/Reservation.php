@@ -4,97 +4,144 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Reservation extends Model
 {
     use HasFactory;
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'reservations';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'reservation_id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'guest_name',
-        'guest_email',
-        'guest_phone',
-        'guest_dob',
+        'user_id',
         'room_id',
-        'room_name',
-        'room_number',
-        'person',
+        'booking_reference',
+        'guest_name',
+        'guest_phone',
+        'guest_email',
+        'guest_count',
         'check_in',
         'check_out',
-        'duration',
-        'early_checkin',
-        'late_checkout',
-        'extra_bed',
-        'base_price',
-        'request_price',
+        'nights', 
+        'duration', 
+        'special_requests',
+        'room_name',      
+        'room_number',   
+        'person',       
+        'room_price',     
+        'base_price',    
+        'request_price', 
         'subtotal',
-        'tax',
+        'tax',          
+        'tax_amount',
+        'service_amount',
         'total_price',
+        'early_checkin',  
+        'late_checkout',
+        'extra_bed',    
         'status',
+        'payment_status',
+        'payment_method',
+        'payment_confirmed_at',
+        'cancelled_at',
+        'cancellation_reason',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'check_in' => 'date',
         'check_out' => 'date',
-        'guest_dob' => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'early_checkin' => 'boolean',
-        'late_checkout' => 'boolean',
-        'extra_bed' => 'boolean',
-        'base_price' => 'float',
-        'request_price' => 'float',
-        'subtotal' => 'float',
-        'tax' => 'float',
-        'total_price' => 'float',
+        'room_price' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'service_amount' => 'decimal:2',
+        'total_price' => 'decimal:2',
+        'payment_confirmed_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
-    protected $dates = [
-        'check_in',
-        'check_out',
-        'created_at',
-        'updated_at'
-    ];
+    // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    /**
-     * Get the room that the reservation belongs to.
-     */
     public function room()
     {
         return $this->belongsTo(Room::class, 'room_id', 'room_id');
     }
 
-    /**
-     * Format the price to rupiah format.
-     *
-     * @param float $price
-     * @return string
-     */
-    public static function formatRupiah($price)
+    // Scopes
+    public function scopePending($query)
     {
-        return 'Rp. ' . number_format($price, 0, ',', '.');
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeConfirmed($query)
+    {
+        return $query->where('status', 'confirmed');
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('payment_status', 'paid');
+    }
+
+    // Accessors & Mutators
+    public function getFormattedTotalPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->total_price, 0, ',', '.');
+    }
+
+    public function getFormattedCheckInAttribute()
+    {
+        return $this->check_in->format('d M Y');
+    }
+
+    public function getFormattedCheckOutAttribute()
+    {
+        return $this->check_out->format('d M Y');
+    }
+
+    public function getIsActiveAttribute()
+    {
+        return in_array($this->status, ['pending', 'confirmed', 'checked_in']);
+    }
+
+    public function getIsPaidAttribute()
+    {
+        return in_array($this->payment_status, ['paid', 'confirmed']) || 
+               in_array($this->status, ['confirmed', 'checked_in']);
+    }
+
+    // Methods
+    public function markAsPaid()
+    {
+        $this->update([
+            'payment_status' => 'paid',
+            'status' => 'confirmed',
+            'payment_confirmed_at' => now(),
+        ]);
+    }
+
+    public function cancel($reason = null)
+    {
+        $this->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancellation_reason' => $reason,
+        ]);
+    }
+
+    public function checkIn()
+    {
+        $this->update([
+            'status' => 'checked_in'
+        ]);
+    }
+
+    public function checkOut()
+    {
+        $this->update([
+            'status' => 'checked_out'
+        ]);
     }
 }

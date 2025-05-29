@@ -1,63 +1,65 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Room;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
     public function index()
-    {
-        $today = now()->toDateString();
+{
+    $today = \Carbon\Carbon::today();
 
-        $todayGuest = DB::table('reservations')->whereDate('check_in', $today)->count();
+    // Hitung jumlah tamu hari ini
+    $todayGuests = Reservation::whereDate('check_in', $today)->count();
 
-        $newBooking = DB::table('reservations')->whereDate('created_at', $today)->count();
+    // Booking baru hari ini
+    $newBookings = Reservation::whereDate('created_at', $today)->count();
 
-        $revenueToday = DB::table('reservations')
-            ->whereDate('check_in', $today)
-            ->sum('total_price');
+    // Total revenue hari ini (hanya yg statusnya Confirmed)
+    $revenueToday = Reservation::where('status', 'Confirmed')
+        ->whereDate('created_at', $today)
+        ->sum('total_price');
 
-        $bookings = DB::table('reservations')
-            ->where('status', 'Confirmed')
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
+    // Perhitungan occupancy
+    $rooms = Room::all();
+    $totalRooms = $rooms->sum('total_rooms');
+    $occupiedRooms = Reservation::whereIn('status', ['Checked In'])
+        ->whereDate('check_in', $today)
+        ->count();
 
-        $rooms = DB::table('rooms')
-            ->leftJoin('reservations', function($join) {
-                $join->on('rooms.room_name', '=', 'reservations.room_name')
-                    ->where('reservations.status', 'Checked In');
-            })
-            ->select('rooms.room_name', 'rooms.total_rooms', DB::raw('COUNT(reservations.reservation_id) as occupied_rooms'))
-            ->groupBy('rooms.room_name', 'rooms.total_rooms')
-            ->get();
+    $availabilityPercentage = $totalRooms > 0
+        ? round((($totalRooms - $occupiedRooms) / $totalRooms) * 100)
+        : 100;
 
-        $occupancyData = [];
-        $totalRooms = 0;
-        $totalOccupied = 0;
+    // Data untuk tampilan occupancy setiap jenis kamar
+    $roomOccupancy = $rooms->map(function ($room) {
+        $occupied = Reservation::where('room_id', $room->room_id)
+            ->whereIn('status', [ 'Checked In'])
+            ->count();
 
-        foreach ($rooms as $room) {
-            $occupied = (int) $room->occupied_rooms;
-            $total = (int) $room->total_rooms;
-            $available = $total - $occupied;
+        return [
+            'room_name' => $room->room_name,
+            'occupied' => $occupied,
+            'total' => $room->total_rooms,
+            'sold_out' => $occupied >= $room->total_rooms,
+        ];
+    });
 
-            $occupancyData[] = [
-                'room_name' => $room->room_name,
-                'occupied' => $occupied,
-                'available' => $available,
-                'total' => $total,
-                'sold_out' => $available <= 0,
-            ];
+    // Booking terbaru
+    $recentBookings = Reservation::whereIn('status', ['Pending', 'Confirmed'])
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
 
-            $totalRooms += $total;
-            $totalOccupied += $occupied;
-        }
-
-        $availabilityPercentage = $totalRooms > 0 ? round(($totalRooms - $totalOccupied) / $totalRooms * 100) : 0;
-
-        return view('admin.dashboard', compact(
-            'todayGuest', 'newBooking', 'revenueToday', 'bookings', 'occupancyData', 'availabilityPercentage'
-        ));
-    }
-}
+    return view('admin.dashboard', compact(
+        'todayGuests',
+        'newBookings',
+        'availabilityPercentage',
+        'revenueToday',
+        'roomOccupancy',
+        'recentBookings'
+    ));
+}}

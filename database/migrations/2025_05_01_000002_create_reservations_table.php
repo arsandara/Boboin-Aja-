@@ -27,12 +27,13 @@ return new class extends Migration
             $table->boolean('early_checkin')->default(false);
             $table->boolean('late_checkout')->default(false);
             $table->boolean('extra_bed')->default(false);
+            $table->text('other_request')->nullable();
             $table->decimal('base_price', 15, 2);
             $table->decimal('request_price', 15, 2)->default(0);
             $table->decimal('subtotal', 15, 2);
             $table->decimal('tax', 15, 2);
             $table->decimal('total_price', 15, 2);
-            $table->string('status')->default('Confirmed');
+            $table->string('status')->default('Pending');
             $table->timestamps();
             
             $table->foreign('room_id')->references('room_id')->on('rooms')->onDelete('cascade');
