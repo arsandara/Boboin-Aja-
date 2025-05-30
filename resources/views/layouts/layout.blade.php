@@ -17,7 +17,7 @@
     <header class="bg-teal-900 text-white">
         <div class="container mx-auto flex justify-between items-center py-4 px-6">
             <div class="flex items-center">
-                <img src="{{ asset('images/LOGO.png') }}" alt="Boboin.Aja logo" class="h-10 mr-3">
+                <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="h-10 mr-3">
             </div>
             <nav class="items-center">
                 <a class="hover:text-gray-300" href="{{ url('/') }}">Home</a>
@@ -82,7 +82,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 <div class="flex justify-center">
                     <div class="w-48">
-                        <img src="{{ asset('images/LOGO.png') }}" alt="Boboin.Aja logo" class="w-full h-auto" />
+                        <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="w-full h-auto" />
                     </div>
                 </div>
                 <div>
