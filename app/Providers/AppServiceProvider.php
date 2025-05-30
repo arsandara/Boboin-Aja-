@@ -20,9 +20,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (!app()->environment('local')) {
+            URL::forceScheme('https');
+        }
+
         // Add formatRupiah helper function for Blade templates
         Blade::directive('rupiah', function ($expression) {
-            return "<?php echo 'Rp. ' . number_format($expression, 0, ',', '.'); ?>";
+            return "<?php echo 'Rp. ' . number_format({$expression}, 0, ',', '.'); ?>";
         });
     }
 }
