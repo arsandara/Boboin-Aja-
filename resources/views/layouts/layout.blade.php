@@ -1,5 +1,3 @@
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,58 +12,58 @@
 <body class="bg-gray-100 font-poppins">
 
     <header class="bg-teal-900 text-white fixed top-0 left-0 w-full z-50 shadow-md">
-  <div class="container mx-auto flex items-center justify-between py-4 px-6">
-    <!-- Logo -->
-    <div class="flex items-center space-x-2">
-      <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="h-10">
-    </div>
+        <div class="container mx-auto flex items-center justify-between py-4 px-6">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="h-10">
+            </div>
 
-    <!-- Desktop Nav (Tengah) -->
-    <nav class="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-      <div class="flex space-x-8">
-        <a href="{{ url('/') }}" class="hover:text-gray-300">Home</a>
-        <a href="{{ url('/rooms') }}" class="hover:text-gray-300">Rooms</a>
-        <a href="{{ url('/facilities') }}" class="hover:text-gray-300">Facilities</a>
-        <a href="{{ url('/contact') }}" class="hover:text-gray-300">Contact</a>
-      </div>
-    </nav>
+            <!-- Desktop Nav (Tengah) -->
+            <nav class="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+                <div class="flex space-x-8">
+                    <a href="{{ url('/') }}" class="hover:text-gray-300">Home</a>
+                    <a href="{{ url('/rooms') }}" class="hover:text-gray-300">Rooms</a>
+                    <a href="{{ url('/facilities') }}" class="hover:text-gray-300">Facilities</a>
+                    <a href="{{ url('/contact') }}" class="hover:text-gray-300">Contact</a>
+                </div>
+            </nav>
 
-    <!-- Right Side -->
-    <div class="flex items-center space-x-4">
-      <!-- Login/Sign Up Button (Selalu Tampil) -->
-      @auth
-        <form method="POST" action="{{ route('logout') }}" class="mr-2 md:mr-0">
-          @csrf
-          <button type="submit" class="hover:text-gray-300">Logout</button>
-        </form>
-      @else
-        <button id="openPopup" class="bg-white text-teal-900 px-4 py-2 rounded hover:bg-gray-200 mr-2 md:mr-0">
-          Login / Sign Up
-        </button>
-      @endauth
+            <!-- Right Side -->
+            <div class="flex items-center space-x-4">
+                <!-- Login/Sign Up Button (Selalu Tampil) -->
+                @auth
+                    <form method="POST" action="{{ route('logout') }}" class="mr-2 md:mr-0">
+                        @csrf
+                        <button type="submit" class="hover:text-gray-300">Logout</button>
+                    </form>
+                @else
+                    <button id="openPopup" class="bg-white text-teal-900 px-4 py-2 rounded hover:bg-gray-200 mr-2 md:mr-0">
+                        Login / Sign Up
+                    </button>
+                @endauth
 
-      <!-- Hamburger Icon (Mobile Only) -->
-      <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-  </div>
+                <!-- Hamburger Icon (Mobile Only) -->
+                <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
 
-  <!-- Mobile Menu Popup (Tanpa Login/Sign Up) -->
-  <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden justify-center items-start pt-24">
-    <div class="bg-white text-teal-900 w-11/12 max-w-xs rounded-lg p-6 shadow-lg relative">
-      <button id="close-mobile-menu" class="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700">
-        &times;
-      </button>
-      <div class="flex flex-col space-y-4 text-center text-lg font-medium mt-6">
-        <a href="{{ url('/') }}" class="hover:text-teal-700">Home</a>
-        <a href="{{ url('/rooms') }}" class="hover:text-teal-700">Rooms</a>
-        <a href="{{ url('/facilities') }}" class="hover:text-teal-700">Facilities</a>
-        <a href="{{ url('/contact') }}" class="hover:text-teal-700">Contact</a>
-      </div>
-    </div>
-  </div>
-</header>
+        <!-- Mobile Menu Popup (Tanpa Login/Sign Up) -->
+        <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden justify-center items-start pt-24">
+            <div class="bg-white text-teal-900 w-11/12 max-w-xs rounded-lg p-6 shadow-lg relative">
+                <button id="close-mobile-menu" class="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700">
+                    &times;
+                </button>
+                <div class="flex flex-col space-y-4 text-center text-lg font-medium mt-6">
+                    <a href="{{ url('/') }}" class="hover:text-teal-700">Home</a>
+                    <a href="{{ url('/rooms') }}" class="hover:text-teal-700">Rooms</a>
+                    <a href="{{ url('/facilities') }}" class="hover:text-teal-700">Facilities</a>
+                    <a href="{{ url('/contact') }}" class="hover:text-teal-700">Contact</a>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- Popup Login/Register -->
     <div id="popupContainer" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
@@ -84,8 +82,9 @@
         </div>
     </div>
 
-    <!-- Content -->
-    <main>
+    <!-- Content dengan padding-top untuk mengkompensasi fixed header -->
+    <main class="pt-20">
+        <!-- pt-20 memberikan space 80px (5rem) untuk header yang fixed -->
         @yield('content')
     </main>
 
@@ -136,8 +135,6 @@
             menu.classList.toggle("hidden");
         });
 
-        
-
         window.addEventListener("click", function (event) {
             const menu = document.getElementById("profileMenu");
             const button = document.getElementById("profileMenuButton");
@@ -147,9 +144,9 @@
         });
 
         document.getElementById("menu-toggle").addEventListener("click", function () {
-    const menu = document.getElementById("nav-menu");
-    menu.classList.toggle("hidden");
-  });
+            const menu = document.getElementById("nav-menu");
+            menu.classList.toggle("hidden");
+        });
 
         // Popup auth modal
         function openPopup(tab = "signin") {
@@ -189,23 +186,22 @@
             activeContent?.classList.remove("hidden");
             activeContent?.classList.add("active");
         }
+
+        // Script untuk toggle mobile menu
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-mobile-menu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+        });
+
+        closeMenu.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        });
     </script>
     @yield('scripts')
 </body>
-<script>
-  // Script untuk toggle mobile menu
-  const menuToggle = document.getElementById('menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const closeMenu = document.getElementById('close-mobile-menu');
-
-  menuToggle.addEventListener('click', () => {
-    mobileMenu.classList.remove('hidden');
-    mobileMenu.classList.add('flex');
-  });
-
-  closeMenu.addEventListener('click', () => {
-    mobileMenu.classList.add('hidden');
-    mobileMenu.classList.remove('flex');
-  });
-</script>
 </html>
