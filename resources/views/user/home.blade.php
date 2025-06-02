@@ -126,7 +126,7 @@
           </div>
           <h3 class="mt-4 text-lg font-semibold">Chat to Admin</h3>
           <p class="text-gray-600 text-sm">Speak to our friendly team.</p>
-          <a href="https://wa.me/081234567891" class="mt-2 text-blue-600 underline">wa.me/081234567891</a>
+          <a href="https://wa.me/+6285175389380" class="mt-2 text-blue-600 underline">wa.me/+6285175389380</a>
         </div>
         <!-- Social Media -->
         <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
