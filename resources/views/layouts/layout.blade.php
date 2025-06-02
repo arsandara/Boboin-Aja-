@@ -11,31 +11,42 @@
 </head>
 <body class="bg-gray-100 font-poppins">
 
-    <header class="bg-teal-900 text-white fixed top-0 left-0 w-full z-50 shadow-md">
-        <div class="container mx-auto flex items-center justify-between py-4 px-6">
+    <header class="bg-teal-900 text-white">
+        <div class="container mx-auto flex justify-between items-center py-4 px-6">
             <!-- Logo -->
-            <div class="flex items-center space-x-2">
-                <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="h-10">
+            <div class="flex items-center">
+                <img src="{{ asset('images/LOGO.png') }}" alt="Boboin.Aja logo" class="h-10 mr-3">
             </div>
 
             <!-- Desktop Nav (Tengah) -->
-            <nav class="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-                <div class="flex space-x-8">
-                    <a href="{{ url('/') }}" class="hover:text-gray-300">Home</a>
-                    <a href="{{ url('/rooms') }}" class="hover:text-gray-300">Rooms</a>
-                    <a href="{{ url('/facilities') }}" class="hover:text-gray-300">Facilities</a>
-                    <a href="{{ url('/contact') }}" class="hover:text-gray-300">Contact</a>
-                </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a class="hover:text-gray-300" href="{{ url('/') }}">Home</a>
+                <a class="hover:text-gray-300" href="{{ url('/rooms') }}">Rooms</a>
+                <a class="hover:text-gray-300" href="{{ url('/facilities') }}">Facilities</a>
+                <a class="hover:text-gray-300" href="{{ url('/contact') }}">Contact</a>
             </nav>
 
             <!-- Right Side -->
-            <div class="flex items-center space-x-4">
-                <!-- Login/Sign Up Button (Selalu Tampil) -->
+            <div class="flex items-center">
                 @auth
-                    <form method="POST" action="{{ route('logout') }}" class="mr-2 md:mr-0">
-                        @csrf
-                        <button type="submit" class="hover:text-gray-300">Logout</button>
-                    </form>
+                    <div class="relative">
+                        <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
+                            <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
+                        </button>
+                        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                            <ul class="py-2 text-sm text-gray-800">
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100">
+                                            Logout
+                                            <i class="fas fa-sign-out-alt text-red-500 ml-2"></i>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 @else
                     <button id="openPopup" class="bg-white text-teal-900 px-4 py-2 rounded hover:bg-gray-200 mr-2 md:mr-0">
                         Login / Sign Up
@@ -43,13 +54,13 @@
                 @endauth
 
                 <!-- Hamburger Icon (Mobile Only) -->
-                <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">
+                <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none ml-4">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Mobile Menu Popup (Tanpa Login/Sign Up) -->
+        <!-- Mobile Menu Popup -->
         <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden justify-center items-start pt-24">
             <div class="bg-white text-teal-900 w-11/12 max-w-xs rounded-lg p-6 shadow-lg relative">
                 <button id="close-mobile-menu" class="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700">
@@ -82,9 +93,8 @@
         </div>
     </div>
 
-    <!-- Content dengan padding-top untuk mengkompensasi fixed header -->
-    <main class="pt-20">
-        <!-- pt-20 memberikan space 80px (5rem) untuk header yang fixed -->
+    <!-- Content tanpa padding-top karena header bukan fixed -->
+    <main>
         @yield('content')
     </main>
 
@@ -94,7 +104,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 <div class="flex justify-center">
                     <div class="w-48">
-                        <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="w-full h-auto" />
+                        <img src="{{ asset('images/LOGO.png') }}" alt="Boboin.Aja logo" class="w-full h-auto" />
                     </div>
                 </div>
                 <div>
