@@ -3,60 +3,66 @@
 @section('content')
   <!-- Hero Section -->
 <section class="relative">
-    <img class="w-full h-96 object-cover" height="600" <img src="{{ asset('images/HEADER.png') }}" width="1920">
-    <div
-      class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center text-white px-4">
-      <h1 class="text-4xl font-bold">
-        More Than a Stay,
-        <br>
-        It’s Where You Find Peace
-      </h1>
-      <p class="mt-4">
-        Find your perfect stay, where modern comfort meets serene tranquility.
-        <br>
-        Recharge, unwind, and experience peace like never before.
-      </p>
-      <!-- Booking Form - Sama di semua halaman -->
-      <div class="mt-6 bg-white text-black rounded-lg shadow-lg p-4">
-          <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
-              <!-- Check In -->
-              <div class="w-full md:w-auto">
-                  <label class="block text-sm font-medium text-right md:text-left" for="checkin">
-                      Check In
-                  </label>
-                  <input class="mt-1 block w-full border-gray-300 rounded-md" id="checkin" type="date" required>
-              </div>
+    <img class="w-full h-96 object-cover" src="{{ asset('images/HEADER.png') }}" alt="Header Image" height="600" width="1920">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center text-white px-4">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold">
+        <span class="block sm:inline">More Than a Stay,</span>
+        <span class="block sm:inline">It's Where You Find Peace</span>
+    </h1>
+    <p class="mt-3 text-sm sm:text-base sm:mt-4">
+        <span class="block sm:inline">Find your perfect stay, where modern comfort</span>
+        <span class="block sm:inline">meets serene tranquility.</span>
+        <span class="block sm:inline">Recharge, unwind, and experience peace</span>
+        <span class="block sm:inline">like never before.</span>
+    </p>
+    
+    <!-- Booking Form -->
+<div class="mt-4 sm:mt-6 bg-white text-black rounded-lg shadow-lg p-3 sm:p-4 w-full max-w-3xl mx-auto">
+    <div class="grid grid-cols-2 xs:flex flex-wrap items-end justify-between gap-3 sm:gap-4">
+        <!-- Check In -->
+        <div class="col-span-1 xs:w-auto flex-1 min-w-[120px]">
+            <label class="block text-xs sm:text-sm font-medium mb-1" for="checkin">
+                Check In
+            </label>
+            <input class="w-full text-xs sm:text-sm p-2 border border-gray-300 rounded-md" 
+                   id="checkin" type="date" required>
+        </div>
 
-              <!-- Check Out -->
-              <div class="w-full md:w-auto">
-                  <label class="block text-sm font-medium text-right md:text-left" for="checkout">
-                      Check Out
-                  </label>
-                  <input class="mt-1 block w-full border-gray-300 rounded-md" id="checkout" type="date" required>
-              </div>
-              
-              <!-- Person -->
-              <div class="w-full md:w-auto">
-                  <label class="block text-sm font-medium text-right md:text-left" for="person">
-                      Person
-                  </label>
-                  <select class="mt-1 block w-full border-gray-300 rounded-md" id="person" required>
-                      <option value="01 Person">01 Person</option>
-                      <option value="02 Person" selected>02 Person</option>
-                      <option value="03 Person">03 Person</option>
-                      <option value="04 Person">04 Person</option>
-                  </select>
-              </div>
-              
-              <!-- Available Room Button -->
-              <div class="w-full md:w-auto text-center md:text-right mt-4 md:mt-0">
-              <a href="{{ url('/rooms') }}" class="inline-block bg-teal-900 text-white px-6 py-2 rounded-md">
-                    Available Room
-                  </a>
-                  </script>
-                </div>
-              </div>
-            </section>
+        <!-- Check Out -->
+        <div class="col-span-1 xs:w-auto flex-1 min-w-[120px]">
+            <label class="block text-xs sm:text-sm font-medium mb-1" for="checkout">
+                Check Out
+            </label>
+            <input class="w-full text-xs sm:text-sm p-2 border border-gray-300 rounded-md" 
+                   id="checkout" type="date" required>
+        </div>
+        
+        <!-- Person -->
+        <div class="col-span-2 xs:col-span-1 xs:w-auto flex-1 min-w-[120px]">
+            <label class="block text-xs sm:text-sm font-medium mb-1" for="person">
+                Person
+            </label>
+            <select class="w-full text-xs sm:text-sm p-2 border border-gray-300 rounded-md" 
+                    id="person" required>
+                <option value="01 Person">01 Person</option>
+                <option value="02 Person" selected>02 Person</option>
+                <option value="03 Person">03 Person</option>
+                <option value="04 Person">04 Person</option>
+            </select>
+        </div>
+        
+        <!-- Available Room Button -->
+        <div class="col-span-2 xs:col-span-1 xs:w-auto mt-1">
+            <a href="{{ url('/rooms') }}" 
+               class="block w-full xs:w-auto text-center bg-teal-900 hover:bg-teal-800 text-white text-xs sm:text-sm px-4 py-2 rounded-md transition-colors">
+                Available Room
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Spacer to prevent collision with next section -->
+<div class="h-6 sm:h-8"></div>
 
   <!-- Services & Facilities -->
 <section class="container mx-auto py-12 px-6">
