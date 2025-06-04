@@ -1,5 +1,3 @@
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-gray-100 font-poppins">
 
@@ -36,7 +35,7 @@
                     <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
                         <img src="{{ Auth::user()->profile_picture ? Storage::url(Auth::user()->profile_picture) : asset('default-profile.png') }}" alt="Profile" class="w-9 h-9 rounded-full border border-white shadow">
                     </button>
-                    <div id="profileMenu" class="hidden fixed right-2 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                    <div id="profileMenu" class="hidden absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
                         <ul class="py-2 text-sm text-gray-800">
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
@@ -142,62 +141,137 @@
 
     <!-- Scripts -->
     <script>
-        // Profile dropdown toggle
-        document.getElementById("profileMenuButton")?.addEventListener("click", function () {
-            const menu = document.getElementById("profileMenu");
-            menu.classList.toggle("hidden");
-        });
+        // Pastikan DOM sudah loaded sebelum menjalankan script
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Profile dropdown toggle
+            const profileMenuButton = document.getElementById("profileMenuButton");
+            const profileMenu = document.getElementById("profileMenu");
+            
+            if (profileMenuButton && profileMenu) {
+                profileMenuButton.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    profileMenu.classList.toggle("hidden");
+                });
+            }
 
-        window.addEventListener("click", function (event) {
-            const menu = document.getElementById("profileMenu");
-            const button = document.getElementById("profileMenuButton");
-            if (menu && button && !button.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.add("hidden");
+            // Close profile menu when clicking outside
+            window.addEventListener("click", function(event) {
+                if (profileMenu && profileMenuButton && 
+                    !profileMenuButton.contains(event.target) && 
+                    !profileMenu.contains(event.target)) {
+                    profileMenu.classList.add("hidden");
+                }
+            });
+
+            // Hamburger menu toggle for mobile
+            const menuToggle = document.getElementById("menu-toggle");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const closeMobileMenu = document.getElementById("close-mobile-menu");
+
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    mobileMenu.classList.remove("hidden");
+                    mobileMenu.classList.add("flex");
+                });
+            }
+
+            if (closeMobileMenu && mobileMenu) {
+                closeMobileMenu.addEventListener("click", function() {
+                    mobileMenu.classList.add("hidden");
+                    mobileMenu.classList.remove("flex");
+                });
+            }
+
+            // Close mobile menu when clicking outside
+            if (mobileMenu) {
+                mobileMenu.addEventListener("click", function(e) {
+                    if (e.target === mobileMenu) {
+                        mobileMenu.classList.add("hidden");
+                        mobileMenu.classList.remove("flex");
+                    }
+                });
+            }
+
+            // Popup login/register functionality
+            const openPopup = document.getElementById("openPopup");
+            const closePopup = document.getElementById("closePopup");
+            const popupContainer = document.getElementById("popupContainer");
+
+            if (openPopup && popupContainer) {
+                openPopup.addEventListener("click", function() {
+                    popupContainer.classList.remove("hidden");
+                    popupContainer.classList.add("flex");
+                    showTab('signin'); // Default to signin tab
+                });
+            }
+
+            if (closePopup && popupContainer) {
+                closePopup.addEventListener("click", function() {
+                    popupContainer.classList.remove("flex");
+                    popupContainer.classList.add("hidden");
+                });
+            }
+
+            // Close popup when clicking outside
+            if (popupContainer) {
+                popupContainer.addEventListener("click", function(event) {
+                    if (event.target === popupContainer) {
+                        popupContainer.classList.remove("flex");
+                        popupContainer.classList.add("hidden");
+                    }
+                });
             }
         });
 
-        // Hamburger menu toggle for mobile
-        document.getElementById("menu-toggle").addEventListener("click", function () {
-            const mobileMenu = document.getElementById("mobile-menu");
-            mobileMenu.classList.toggle("hidden");
-            mobileMenu.classList.toggle("flex");
-        });
-
-        // Close the mobile menu when clicking the close button
-        document.getElementById("close-mobile-menu").addEventListener("click", function () {
-            const mobileMenu = document.getElementById("mobile-menu");
-            mobileMenu.classList.add("hidden");
-            mobileMenu.classList.remove("flex");
-        });
-
-        // Open popup
-        document.getElementById("openPopup")?.addEventListener("click", function() {
-            const popupContainer = document.getElementById("popupContainer");
-            popupContainer.classList.remove("hidden");
-            popupContainer.classList.add("flex");
-        });
-
-        // Close popup
-        document.getElementById("closePopup")?.addEventListener("click", function() {
-            const popupContainer = document.getElementById("popupContainer");
-            popupContainer.classList.remove("flex");
-            popupContainer.classList.add("hidden");
-        });
-
+        // Tab switching function untuk login/register
         function showTab(tabId) {
+            // Remove active classes from all buttons
             document.querySelectorAll(".tab-button").forEach(btn => {
                 btn.classList.remove("active", "border-b-2", "border-teal-900", "text-teal-900");
             });
+            
+            // Hide all tab contents
             document.querySelectorAll(".tab-content").forEach(tab => {
                 tab.classList.add("hidden");
                 tab.classList.remove("active");
             });
+            
+            // Show active tab
             const activeButton = document.querySelector(`[onclick="showTab('${tabId}')"]`);
             const activeContent = document.getElementById(tabId);
-            activeButton?.classList.add("active", "border-b-2", "border-teal-900", "text-teal-900");
-            activeContent?.classList.remove("hidden");
-            activeContent?.classList.add("active");
+            
+            if (activeButton) {
+                activeButton.classList.add("active", "border-b-2", "border-teal-900", "text-teal-900");
+            }
+            
+            if (activeContent) {
+                activeContent.classList.remove("hidden");
+                activeContent.classList.add("active");
+            }
+        }
+
+        // Fungsi untuk memastikan date formatting tetap konsisten
+        // Jika ada custom date handling, pastikan locale diset dengan benar
+        if (typeof Intl !== 'undefined') {
+            // Set default locale untuk date formatting
+            const dateOptions = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            };
+            
+            // Helper function untuk format date konsisten
+            window.formatDateConsistent = function(date) {
+                if (date instanceof Date) {
+                    return date.toLocaleDateString('id-ID', dateOptions);
+                }
+                return date;
+            };
         }
     </script>
+    
+    @yield('scripts')
 </body>
 </html>
