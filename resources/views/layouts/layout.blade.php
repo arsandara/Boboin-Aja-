@@ -1,13 +1,13 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Boboin.Aja</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,15 +17,20 @@
     <header class="bg-teal-900 text-white">
         <div class="container mx-auto flex justify-between items-center py-4 px-6">
             <div class="flex items-center">
-                <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="h-10 mr-3">
+                <img src="{{ asset('images/LOGO.png') }}" alt="Logo Boboin.Aja" class="h-10 mr-3">
             </div>
-            <nav class="items-center">
+
+            <!-- Desktop Nav (Menampilkan Menu Navigasi Utama di Desktop) -->
+            <nav class="hidden md:flex items-center space-x-8">
                 <a class="hover:text-gray-300" href="{{ url('/') }}">Home</a>
                 <a class="hover:text-gray-300" href="{{ url('/rooms') }}">Rooms</a>
                 <a class="hover:text-gray-300" href="{{ url('/facilities') }}">Facilities</a>
                 <a class="hover:text-gray-300" href="{{ url('/contact') }}">Contact</a>
             </nav>
-            <div class="flex items-center">
+
+            <!-- Right Side (Profile + Hamburger Menu) -->
+            <div class="flex items-center space-x-4">
+                <!-- Profile Button -->
                 @auth
                 <div class="relative">
                     <button id="profileMenuButton" class="flex items-center space-x-2 focus:outline-none">
@@ -50,9 +55,29 @@
                     Login / Sign Up
                 </button>
                 @endauth
+
+                <!-- Hamburger Icon (Mobile Only) -->
+                <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none ml-4">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Menu Popup -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden justify-center items-start pt-24">
+        <div class="bg-white text-teal-900 w-11/12 max-w-xs rounded-lg p-6 shadow-lg relative">
+            <button id="close-mobile-menu" class="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700">
+                &times;
+            </button>
+            <div class="flex flex-col space-y-4 text-center text-lg font-medium mt-6">
+                <a href="{{ url('/') }}" class="hover:text-teal-700">Home</a>
+                <a href="{{ url('/rooms') }}" class="hover:text-teal-700">Rooms</a>
+                <a href="{{ url('/facilities') }}" class="hover:text-teal-700">Facilities</a>
+                <a href="{{ url('/contact') }}" class="hover:text-teal-700">Contact</a>
+            </div>
+        </div>
+    </div>
 
     <!-- Popup Login/Register -->
     <div id="popupContainer" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
@@ -82,7 +107,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 <div class="flex justify-center">
                     <div class="w-48">
-                        <img src="{{ asset('images/Logo.png') }}" alt="Boboin.Aja logo" class="w-full h-auto" />
+                        <img src="{{ asset('images/LOGO.png') }}" alt="Logo Boboin.Aja" class="w-full h-auto" />
                     </div>
                 </div>
                 <div>
@@ -131,28 +156,32 @@
             }
         });
 
-        // Popup auth modal
-        function openPopup(tab = "signin") {
+        // Hamburger menu toggle for mobile
+        document.getElementById("menu-toggle").addEventListener("click", function () {
+            const mobileMenu = document.getElementById("mobile-menu");
+            mobileMenu.classList.toggle("hidden");
+            mobileMenu.classList.toggle("flex");
+        });
+
+        // Close the mobile menu when clicking the close button
+        document.getElementById("close-mobile-menu").addEventListener("click", function () {
+            const mobileMenu = document.getElementById("mobile-menu");
+            mobileMenu.classList.add("hidden");
+            mobileMenu.classList.remove("flex");
+        });
+
+        // Open popup
+        document.getElementById("openPopup")?.addEventListener("click", function() {
             const popupContainer = document.getElementById("popupContainer");
             popupContainer.classList.remove("hidden");
             popupContainer.classList.add("flex");
-            showTab(tab);
-        }
+        });
 
-        function closePopup() {
+        // Close popup
+        document.getElementById("closePopup")?.addEventListener("click", function() {
             const popupContainer = document.getElementById("popupContainer");
             popupContainer.classList.remove("flex");
             popupContainer.classList.add("hidden");
-        }
-
-        document.getElementById("openPopup")?.addEventListener("click", () => openPopup("signin"));
-        document.getElementById("closePopup")?.addEventListener("click", closePopup);
-
-        window.addEventListener("click", function (event) {
-            const popupContainer = document.getElementById("popupContainer");
-            if (event.target === popupContainer) {
-                closePopup();
-            }
         });
 
         function showTab(tabId) {
@@ -170,6 +199,5 @@
             activeContent?.classList.add("active");
         }
     </script>
-    @yield('scripts')
 </body>
 </html>
